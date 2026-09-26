@@ -1,8 +1,352 @@
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
+  moduleFormat = "cjs"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+enum UserRole {
+  STUDENT
+  GRADUATE
+  MENTOR
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  DEACTIVATED
+}
+
+enum ProfileStatus {
+  INCOMPLETE
+  COMPLETE
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  NON_BINARY
+  PREFER_NOT_TO_SAY
+}
+
+enum GraduationStatus {
+  FINAL_YEAR
+  GRADUATED
+}
+
+enum MentorApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum MentorRequestStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  CANCELLED
+  COMPLETED
+}
+
+enum RoadmapTaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+model User {
+  id                     String           @id @default(uuid()) @db.Uuid
+  email                  String           @unique
+  password               String           @map("password_hash")
+  firstName              String           @map("first_name")
+  lastName               String           @map("last_name")
+  role                   UserRole         @default(STUDENT)
+  status                 UserStatus       @default(ACTIVE)
+  refreshSessions        RefreshSession[]
+  profile                Profile?
+  mentorProfile          MentorProfile?
+  mentorRequestsSent     MentorRequest[]  @relation("StudentMentorRequests")
+  mentorRequestsReceived MentorRequest[]  @relation("MentorMentorRequests")
+  feedbackGiven          Feedback[]       @relation("FeedbackAuthor")
+  feedbackReceived       Feedback[]       @relation("FeedbackRecipient")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([role])
+  @@index([status])
+  @@map("users")
+}
+
+model Profile {
+  id     String @id @default(uuid()) @db.Uuid
+  userId String @unique @map("user_id") @db.Uuid
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  status ProfileStatus @default(INCOMPLETE)
+
+  phoneNumber String? @map("phone_number") @db.VarChar(30)
+  gender      Gender?
+
+  institutionName String? @map("institution_name")
+  fieldOfStudy    String? @map("field_of_study")
+
+  graduationStatus GraduationStatus? @map("graduation_status")
+  graduationYear   Int?              @map("graduation_year")
+
+  bio String? @db.Text
+
+  profileSkills   ProfileSkill[]
+  careerInterests ProfileCareerInterest[]
+
+  roadmaps Roadmap[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([graduationStatus])
+  @@map("profiles")
+}
+
+model Skill {
+  id   String @id @default(uuid()) @db.Uuid
+  name String @unique
+
+  profiles     ProfileSkill[]
+  mentorSkills MentorSkill[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("skills")
+}
+
+model ProfileSkill {
+  profileId String @map("profile_id") @db.Uuid
+  skillId   String @map("skill_id") @db.Uuid
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  skill   Skill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@id([profileId, skillId])
+  @@index([skillId])
+  @@map("profile_skills")
+}
+
+model CareerInterest {
+  id   String @id @default(uuid()) @db.Uuid
+  name String @unique
+
+  profiles        ProfileCareerInterest[]
+  mentorInterests MentorCareerInterest[]
+  pathways        CareerPathwayInterest[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("career_interests")
+}
+
+model ProfileCareerInterest {
+  profileId        String @map("profile_id") @db.Uuid
+  careerInterestId String @map("career_interest_id") @db.Uuid
+
+  profile        Profile        @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  careerInterest CareerInterest @relation(fields: [careerInterestId], references: [id], onDelete: Cascade)
+
+  @@id([profileId, careerInterestId])
+  @@index([careerInterestId])
+  @@map("profile_career_interests")
+}
+
+model MentorProfile {
+  id     String @id @default(uuid()) @db.Uuid
+  userId String @unique @map("user_id") @db.Uuid
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  applicationStatus MentorApplicationStatus @default(PENDING)
+
+  professionalTitle String? @map("professional_title")
+  organisation      String?
+  yearsOfExperience Int?    @map("years_of_experience")
+  bio               String? @db.Text
+
+  isAvailable Boolean @default(true) @map("is_available")
+
+  mentorSkills    MentorSkill[]
+  mentorInterests MentorCareerInterest[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([applicationStatus])
+  @@index([isAvailable])
+  @@map("mentor_profiles")
+}
+
+model MentorSkill {
+  mentorProfileId String @map("mentor_profile_id") @db.Uuid
+  skillId         String @map("skill_id") @db.Uuid
+
+  mentorProfile MentorProfile @relation(fields: [mentorProfileId], references: [id], onDelete: Cascade)
+  skill         Skill         @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@id([mentorProfileId, skillId])
+  @@index([skillId])
+  @@map("mentor_skills")
+}
+
+model MentorCareerInterest {
+  mentorProfileId  String @map("mentor_profile_id") @db.Uuid
+  careerInterestId String @map("career_interest_id") @db.Uuid
+
+  mentorProfile  MentorProfile  @relation(fields: [mentorProfileId], references: [id], onDelete: Cascade)
+  careerInterest CareerInterest @relation(fields: [careerInterestId], references: [id], onDelete: Cascade)
+
+  @@id([mentorProfileId, careerInterestId])
+  @@index([careerInterestId])
+  @@map("mentor_career_interests")
+}
+
+model CareerPathway {
+  id          String @id @default(uuid()) @db.Uuid
+  name        String @unique
+  description String @db.Text
+
+  isActive Boolean @default(true) @map("is_active")
+
+  interests CareerPathwayInterest[]
+  roadmaps  Roadmap[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([isActive])
+  @@map("career_pathways")
+}
+
+model CareerPathwayInterest {
+  careerPathwayId  String @map("career_pathway_id") @db.Uuid
+  careerInterestId String @map("career_interest_id") @db.Uuid
+
+  careerPathway  CareerPathway  @relation(fields: [careerPathwayId], references: [id], onDelete: Cascade)
+  careerInterest CareerInterest @relation(fields: [careerInterestId], references: [id], onDelete: Cascade)
+
+  @@id([careerPathwayId, careerInterestId])
+  @@index([careerInterestId])
+  @@map("career_pathway_interests")
+}
+
+model Roadmap {
+  id        String @id @default(uuid()) @db.Uuid
+  profileId String @map("profile_id") @db.Uuid
+  pathwayId String @map("pathway_id") @db.Uuid
+
+  profile Profile       @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  pathway CareerPathway @relation(fields: [pathwayId], references: [id], onDelete: Restrict)
+
+  tasks RoadmapTask[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([profileId, pathwayId])
+  @@index([profileId])
+  @@index([pathwayId])
+  @@map("roadmaps")
+}
+
+model RoadmapTask {
+  id        String @id @default(uuid()) @db.Uuid
+  roadmapId String @map("roadmap_id") @db.Uuid
+
+  roadmap Roadmap @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String? @db.Text
+
+  order Int
+
+  status RoadmapTaskStatus @default(PENDING)
+
+  completedAt DateTime? @map("completed_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([roadmapId, order])
+  @@index([roadmapId, status])
+  @@map("roadmap_tasks")
+}
+
+model MentorRequest {
+  id String @id @default(uuid()) @db.Uuid
+
+  studentId String @map("student_id") @db.Uuid
+  mentorId  String @map("mentor_id") @db.Uuid
+
+  student User @relation("StudentMentorRequests", fields: [studentId], references: [id], onDelete: Restrict)
+  mentor  User @relation("MentorMentorRequests", fields: [mentorId], references: [id], onDelete: Restrict)
+
+  status MentorRequestStatus @default(PENDING)
+
+  message String? @db.Text
+
+  requestedAt DateTime  @default(now()) @map("requested_at")
+  respondedAt DateTime? @map("responded_at")
+  completedAt DateTime? @map("completed_at")
+
+  feedback Feedback?
+
+  @@index([studentId, status])
+  @@index([mentorId, status])
+  @@index([status])
+  @@map("mentor_requests")
+}
+
+model Feedback {
+  id String @id @default(uuid()) @db.Uuid
+
+  mentorRequestId String @unique @map("mentor_request_id") @db.Uuid
+  authorId        String @map("author_id") @db.Uuid
+  recipientId     String @map("recipient_id") @db.Uuid
+
+  mentorRequest MentorRequest @relation(fields: [mentorRequestId], references: [id], onDelete: Cascade)
+
+  author    User @relation("FeedbackAuthor", fields: [authorId], references: [id], onDelete: Restrict)
+  recipient User @relation("FeedbackRecipient", fields: [recipientId], references: [id], onDelete: Restrict)
+
+  rating  Int
+  comment String? @db.Text
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([authorId])
+  @@index([recipientId])
+  @@map("feedback")
+}
+
+model RefreshSession {
+  id String @id @default(uuid()) @db.Uuid
+
+  userId String @map("user_id") @db.Uuid
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  tokenHash String @unique @map("token_hash")
+
+  expiresAt DateTime  @map("expires_at")
+  revokedAt DateTime? @map("revoked_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([revokedAt])
+  @@map("refresh_sessions")
 }
