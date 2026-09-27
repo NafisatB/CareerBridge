@@ -155,46 +155,60 @@ async function seedCareerPathways(): Promise<void> {
       name: 'Frontend Development',
       description:
         'A career pathway focused on building responsive and accessible user interfaces for web applications.',
+      interests: ['Software Development', 'UI/UX Design'],
     },
     {
       name: 'Backend Development',
       description:
         'A career pathway focused on server-side applications, APIs, databases, authentication, and backend systems.',
+      interests: ['Software Development'],
     },
     {
       name: 'Data Analysis',
       description:
         'A career pathway focused on collecting, cleaning, analysing, and communicating insights from data.',
+      interests: ['Data Science'],
     },
     {
       name: 'Data Science',
       description:
         'A career pathway combining statistics, programming, and machine learning to solve data-driven problems.',
+      interests: ['Data Science', 'Artificial Intelligence'],
+    },
+    {
+      name: 'Artificial Intelligence',
+      description:
+        'A career pathway focused on developing intelligent systems using machine learning, data, programming, and computational methods.',
+      interests: ['Artificial Intelligence', 'Data Science'],
     },
     {
       name: 'UI/UX Design',
       description:
         'A career pathway focused on user research, interaction design, visual design, and usability.',
+      interests: ['UI/UX Design'],
     },
     {
       name: 'Product Management',
       description:
         'A career pathway focused on product strategy, user needs, prioritisation, delivery, and product growth.',
+      interests: ['Product Management'],
     },
     {
       name: 'Cybersecurity',
       description:
         'A career pathway focused on protecting applications, systems, networks, and data from security threats.',
+      interests: ['Cybersecurity'],
     },
     {
       name: 'Digital Marketing',
       description:
         'A career pathway focused on digital campaigns, content, audience engagement, analytics, and growth.',
+      interests: ['Digital Marketing'],
     },
   ];
 
   for (const pathway of pathways) {
-    await prisma.careerPathway.upsert({
+    const careerPathway = await prisma.careerPathway.upsert({
       where: {
         name: pathway.name,
       },
@@ -202,8 +216,42 @@ async function seedCareerPathways(): Promise<void> {
         description: pathway.description,
         isActive: true,
       },
-      create: pathway,
+      create: {
+        name: pathway.name,
+        description: pathway.description,
+      },
     });
+
+    for (const interestName of pathway.interests) {
+      const careerInterest = await prisma.careerInterest.findUnique({
+        where: {
+          name: interestName,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!careerInterest) {
+        throw new Error(
+          `Career interest "${interestName}" was not found.`,
+        );
+      }
+
+      await prisma.careerPathwayInterest.upsert({
+        where: {
+          careerPathwayId_careerInterestId: {
+            careerPathwayId: careerPathway.id,
+            careerInterestId: careerInterest.id,
+          },
+        },
+        update: {},
+        create: {
+          careerPathwayId: careerPathway.id,
+          careerInterestId: careerInterest.id,
+        },
+      });
+    }
   }
 
   console.log(`Career pathways seeded: ${pathways.length}`);
