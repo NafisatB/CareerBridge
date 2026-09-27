@@ -3,6 +3,7 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 
 import {
@@ -92,6 +93,82 @@ export class UsersService {
   };
 }
 
+async findUserDetails(id: string) {
+  const user = await this.prisma.user.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      email: true,
+      firstName: true,
+      lastName: true,
+      role: true,
+      status: true,
+      createdAt: true,
+      updatedAt: true,
+
+      profile: {
+        select: {
+          id: true,
+          status: true,
+          phoneNumber: true,
+          gender: true,
+          institutionName: true,
+          fieldOfStudy: true,
+          graduationStatus: true,
+          graduationYear: true,
+          bio: true,
+        },
+      },
+
+      mentorProfile: {
+        select: {
+          id: true,
+          applicationStatus: true,
+          professionalTitle: true,
+          organisation: true,
+          yearsOfExperience: true,
+          bio: true,
+          isAvailable: true,
+        },
+      },
+    },
+  });
+
+  if (!user) {
+    throw new NotFoundException('User not found.');
+  }
+
+  return user;
+}
+
+async updateStatus(id: string, status: UserStatus) {
+  const user = await this.prisma.user.findUnique({
+    where: { id },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!user) {
+    throw new NotFoundException('User not found.');
+  }
+
+  return this.prisma.user.update({
+    where: { id },
+    data: {
+      status,
+    },
+    select: {
+      id: true,
+      email: true,
+      firstName: true,
+      lastName: true,
+      role: true,
+      status: true,
+      updatedAt: true,
+    },
+  });
+}
   async create(input: CreateUserInput) {
     const email = input.email.trim().toLowerCase();
 
