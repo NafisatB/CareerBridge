@@ -69,12 +69,12 @@ async function bootstrap(): Promise<void> {
   await app.listen(port);
 
   logger.log(
-    `CareerBridge API running on http://localhost:${port}`,
+    `CareerBridge API running on ${port}`,
     'Bootstrap',
   );
 
   logger.log(
-    `Swagger documentation available at http://localhost:${port}/docs`,
+    `Swagger documentation available at ${port}/docs`,
     'Bootstrap',
   );
 }
