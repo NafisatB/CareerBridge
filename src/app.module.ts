@@ -7,6 +7,9 @@ import { LoggerModule } from './logger/logger.module';
 import { HealthModule } from './health/health.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { ProfileModule } from './profile/profile.module';
+import { SkillsModule } from './skills/skills.module';
+import { CareerInterestModule } from './career-interest/career-interest.module';
 
 @Module({
   imports: [
@@ -21,7 +24,10 @@ import { UsersModule } from './users/users.module';
     DatabaseModule,
     HealthModule,
     AuthModule,
-    UsersModule
+    UsersModule,
+    ProfileModule,
+    SkillsModule,
+    CareerInterestModule
   ],
 })
 export class AppModule {}
