@@ -2,6 +2,11 @@
 
 A production-oriented NestJS backend for **CareerBridge**, a mentorship and career-guidance platform designed to help Nigerian university students and recent graduates transition from education into employment through structured career guidance, mentor matching, mentorship allocation, and career-roadmap tracking.
 
+## Live Demo
+
+* **Swagger / API Documentation:** https://careerbridge-per5.onrender.com/docs
+* **Production API Base URL:** https://careerbridge-per5.onrender.com
+* **GGitHub Repository:** https://github.com/NafisatB/CareerBridge
 ---
 
 ## Table of Contents
