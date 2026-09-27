@@ -6,7 +6,7 @@ A production-oriented NestJS backend for **CareerBridge**, a mentorship and care
 
 * **Swagger / API Documentation:** https://careerbridge-per5.onrender.com/docs
 * **Production API Base URL:** https://careerbridge-per5.onrender.com
-* **GGitHub Repository:** https://github.com/NafisatB/CareerBridge
+* **GitHub Repository:** https://github.com/NafisatB/CareerBridge
 ---
 
 ## Table of Contents
