@@ -71,6 +71,27 @@ export class UsersService {
     });
   }
 
+  async findAll() {
+  const users = await this.prisma.user.findMany({
+    select: {
+      id: true,
+      email: true,
+      firstName: true,
+      lastName: true,
+      role: true,
+      status: true,
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+
+  return {
+    users,
+    total: users.length,
+  };
+}
+
   async create(input: CreateUserInput) {
     const email = input.email.trim().toLowerCase();
 

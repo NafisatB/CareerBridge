@@ -46,6 +46,7 @@
 import {
   Body,
   Controller,
+  Get,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -72,6 +73,31 @@ export class UsersController {
   constructor(
     private readonly usersService: UsersService,
   ) {}
+
+  @Get()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: 'List all users',
+    description:
+      'Returns all registered users. Only administrators can access this endpoint.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Users retrieved successfully.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Authentication required.',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Only administrators can access this endpoint.',
+  })
+  findAll() {
+    return this.usersService.findAll();
+  }
 
   @Post('admin')
   @UseGuards(JwtAuthGuard, RolesGuard)
