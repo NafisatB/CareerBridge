@@ -10,6 +10,7 @@ import { UsersModule } from './users/users.module';
 import { ProfileModule } from './profile/profile.module';
 import { SkillsModule } from './skills/skills.module';
 import { CareerInterestModule } from './career-interest/career-interest.module';
+import { MentorsModule } from './mentors/mentors.module';
 
 @Module({
   imports: [
@@ -27,7 +28,8 @@ import { CareerInterestModule } from './career-interest/career-interest.module';
     UsersModule,
     ProfileModule,
     SkillsModule,
-    CareerInterestModule
+    CareerInterestModule,
+    MentorsModule
   ],
 })
 export class AppModule {}
