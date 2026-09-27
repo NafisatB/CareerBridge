@@ -13,6 +13,7 @@ import { CareerInterestModule } from './career-interest/career-interest.module';
 import { MentorsModule } from './mentors/mentors.module';
 import { MatchingModule } from './matching/matching.module';
 import { CareerGuidanceModule } from './career-guidance/career-guidance.module';
+import { MentorRequestsModule } from './mentor-requests/mentor-requests.module';
 
 @Module({
   imports: [
@@ -33,7 +34,8 @@ import { CareerGuidanceModule } from './career-guidance/career-guidance.module';
     CareerInterestModule,
     MentorsModule,
     MatchingModule,
-    CareerGuidanceModule
+    CareerGuidanceModule,
+    MentorRequestsModule
   ],
 })
 export class AppModule {}

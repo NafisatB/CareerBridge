@@ -91,6 +91,7 @@ export class MatchingService {
         },
         user: {
           select: {
+            id: true,
             firstName: true,
             lastName: true,
           },
@@ -134,7 +135,7 @@ export class MatchingService {
 
         return {
           mentor: {
-            id: mentor.id,
+            id: mentor.user.id,
             firstName: mentor.user.firstName,
             lastName: mentor.user.lastName,
             professionalTitle: mentor.professionalTitle,
