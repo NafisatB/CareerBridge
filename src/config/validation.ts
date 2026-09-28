@@ -14,9 +14,7 @@ class EnvironmentVariables {
   DATABASE_URL!: string;
 
   @IsOptional()
-  @IsUrl({
-    require_tld: false,
-  })
+  @IsString()
   CORS_ORIGIN?: string;
 
   @IsOptional()
