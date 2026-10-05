@@ -1,4 +1,4 @@
-import {Body,Controller,Get,Param,Patch,Post,UseGuards,} from '@nestjs/common';
+import {Body,Controller,Delete,Get,Param,ParseUUIDPipe,Patch,Post,UseGuards,} from '@nestjs/common';
 import {ApiBearerAuth,ApiOperation,ApiResponse,ApiTags} from '@nestjs/swagger';
 
 import { UserRole } from 'generated/prisma/client';
@@ -136,6 +136,18 @@ updateRoadmapTask(
     user.id,
     taskId,
     updateRoadmapTaskDto,
+  );
+}
+
+@Delete(':roadmapId')
+@ApiBearerAuth('access-token')
+async deleteRoadmap(
+  @CurrentUser() user: { id: string },
+  @Param('roadmapId', new ParseUUIDPipe()) roadmapId: string,
+) {
+  return this.roadmapsService.deleteRoadmap(
+    user.id,
+    roadmapId,
   );
 }
 }

@@ -331,4 +331,50 @@ async updateRoadmapTask(
     task: updatedTask,
   };
 }
+async deleteRoadmap(
+  userId: string,
+  roadmapId: string,
+) {
+  const profile = await this.prisma.profile.findUnique({
+    where: {
+      userId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!profile) {
+    throw new NotFoundException(
+      'Profile not found.',
+    );
+  }
+
+  const roadmap = await this.prisma.roadmap.findFirst({
+    where: {
+      id: roadmapId,
+      profileId: profile.id,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!roadmap) {
+    throw new NotFoundException(
+      'Roadmap not found.',
+    );
+  }
+
+  await this.prisma.roadmap.delete({
+    where: {
+      id: roadmap.id,
+    },
+  });
+
+  return {
+    message: 'Roadmap deleted successfully.',
+  };
 }
+}
+
