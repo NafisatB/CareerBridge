@@ -157,9 +157,8 @@ export class AuthService {
             refreshToken,
             {
                 httpOnly: true,
-                secure:
-                    process.env.NODE_ENV === 'production',
-                sameSite: 'lax',
+                secure: true,
+                sameSite: 'none',
                 path: '/api/v1/auth',
                 expires: refreshTokenExpiry,
             },
@@ -322,9 +321,8 @@ export class AuthService {
             newRefreshToken,
             {
                 httpOnly: true,
-                secure:
-                    process.env.NODE_ENV === 'production',
-                sameSite: 'lax',
+                secure: true,
+                sameSite: 'none',
                 path: '/api/v1/auth',
                 expires: refreshTokenExpiry,
             },
@@ -410,9 +408,8 @@ export class AuthService {
 
   response.clearCookie(REFRESH_TOKEN_COOKIE, {
     httpOnly: true,
-    secure:
-      process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    secure: true,
+    sameSite: 'none',
     path: '/api/v1/auth',
   });
 
